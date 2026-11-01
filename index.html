@@ -129,7 +129,7 @@ textarea{resize:vertical;min-height:68px}
    <h2>3. シール用紙の設定</h2>
    <div class="row">
     <div class="field"><label for="orientation">用紙</label><select id="orientation"><option value="portrait">A4 縦</option><option value="landscape">A4 横</option></select></div>
-    <div class="field"><label for="size">シール幅・高さ</label><select id="size"><option value="30">30 mm</option><option value="35" selected>35 mm</option><option value="40">40 mm</option><option value="45">45 mm</option><option value="50">50 mm</option><option value="55">55 mm</option><option value="60">60 mm</option><option value="custom">自由入力</option></select></div>
+    <div class="field"><label for="size">シール幅・高さ</label><select id="size"><option value="25">25 mm</option><option value="30">30 mm</option><option value="35" selected>35 mm</option><option value="40">40 mm</option><option value="45">45 mm</option><option value="50">50 mm</option><option value="55">55 mm</option><option value="60">60 mm</option><option value="custom">自由入力</option></select></div>
    </div>
    <div class="row" id="customRow" hidden><div class="field"><label for="customSize">サイズ（mm）</label><input id="customSize" type="number" min="15" max="100" value="35"></div></div>
    <div class="row">
@@ -250,7 +250,7 @@ async function loadCatalog(){
   const data=await res.json();
   const m=data&&data.fantasy&&data.fantasy.monsters;
   if(!m)return;
-  const sets=[['zako','ナビアン'],['zakoEvolved','エボナビ'],['boss','ボスナビ']].filter(([k])=>Array.isArray(m[k])&&m[k].length).map(([k,label])=>({id:k,label,path:'monsters/'+k,names:m[k]}));
+  const sets=[['zako','ナビアン'],['zakoEvolved','エボナビ'],['boss','ボスナビ']].filter(([k])=>Array.isArray(m[k])&&m[k].length).map(([k,label])=>({id:k,label,path:'monsters/'+({zako:'zako',zakoEvolved:'zako-evolved',boss:'boss'})[k],names:m[k]}));
   if(!sets.length)return;
   navianSets.length=0;navianSets.push(...sets);
   if(m.displayNamesJa){Object.keys(navianNames).forEach(k=>delete navianNames[k]);Object.assign(navianNames,m.displayNamesJa)}
