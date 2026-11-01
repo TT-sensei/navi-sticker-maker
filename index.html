@@ -133,7 +133,7 @@ textarea{resize:vertical;min-height:68px}
     <div class="field"><label for="gap">シール間隔（mm）</label><input id="gap" type="number" min="0" max="15" step=".5" value="3"></div>
    </div>
    <div class="field"><label for="shape">シールの形</label><select id="shape"><option value="round">角丸</option><option value="circle">丸</option><option value="square">四角</option></select></div>
-   <div class="field"><label for="stickerBg">シールの背景</label><select id="stickerBg"><option value="none">なし・ホワイト</option><option value="holo">ホログラム</option><option value="aurora">オーロラ</option><option value="pearl">パール</option><option value="galaxy">ギャラクシー</option><option value="pastel">パステルグラデーション</option></select></div>
+   <div class="field"><label for="stickerBg">シールの背景</label><select id="stickerBg"><option value="holo" selected>ホログラム（おすすめ・初期設定）</option><option value="none">なし・ホワイト</option><option value="aurora">オーロラ</option><option value="pearl">パール</option><option value="galaxy">ギャラクシー</option><option value="pastel">パステルグラデーション</option></select></div>
    <p class="small">背景は印刷にも反映されます。絵は少し大きく、シールのふちからはみ出す配置にしています。</p>
    <div class="notice">全面シール用紙向けの自由配置です。印刷時は「A4・倍率100%（実際のサイズ）」を選び、プリンターのフチなし設定や自動拡大縮小は用紙に合わせて確認してください。</div>
   </div>
@@ -217,7 +217,7 @@ $('clearBtn').onclick=()=>{if(confirm('シートのシールをすべて削除�
 $('resetBtn').onclick=()=>{stickers=[];$('phrase').value='よく考えたね！';if(characters.length)addSticker($('phrase').value);else render()};
 $('orientation').onchange=()=>{updatePrintPageRule();render()};$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';render()};['customSize','margin','gap','shape','stickerBg'].forEach(id=>$(id).addEventListener('input',render));
 function save(show=true){try{localStorage.setItem('naviStickerMaker',JSON.stringify({characters,stickers,selectedChar,orientation:$('orientation').value,size:$('size').value,customSize:$('customSize').value,margin:$('margin').value,gap:$('gap').value,shape:$('shape').value,stickerBg:$('stickerBg').value}));if(show)alert('この端末に保存しました。')}catch(e){if(show)alert('保存できませんでした。画像の数やサイズを減らしてみてください。')}}
-function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d)return;characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape','stickerBg'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k]});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d)return;characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape','stickerBg'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k];else if(k==='stickerBg')$('stickerBg').value='holo'});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
 $('saveBtn').onclick=()=>save(true);$('printBtn').onclick=()=>window.print();
 renderPhraseChips();load();renderNavianLibrary();updatePrintPageRule();
 </script>
