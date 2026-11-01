@@ -129,9 +129,9 @@ textarea{resize:vertical;min-height:68px}
    <h2>3. シール用紙の設定</h2>
    <div class="row">
     <div class="field"><label for="orientation">用紙</label><select id="orientation"><option value="portrait">A4 縦</option><option value="landscape">A4 横</option></select></div>
-    <div class="field"><label for="size">シール幅・高さ</label><select id="size"><option value="25">25 mm</option><option value="30">30 mm</option><option value="35" selected>35 mm</option><option value="40">40 mm</option><option value="45">45 mm</option><option value="50">50 mm</option><option value="55">55 mm</option><option value="60">60 mm</option><option value="custom">自由入力</option></select></div>
+    <div class="field"><label for="size">シール幅・高さ</label><select id="size"><option value="25" selected>25 mm</option><option value="30">30 mm</option><option value="35">35 mm</option><option value="40">40 mm</option><option value="45">45 mm</option><option value="50">50 mm</option><option value="55">55 mm</option><option value="60">60 mm</option><option value="custom">自由入力</option></select></div>
    </div>
-   <div class="row" id="customRow" hidden><div class="field"><label for="customSize">サイズ（mm）</label><input id="customSize" type="number" min="15" max="100" value="35"></div></div>
+   <div class="row" id="customRow" hidden><div class="field"><label for="customSize">サイズ（mm）</label><input id="customSize" type="number" min="15" max="100" value="25"></div></div>
    <div class="row">
     <div class="field"><label for="margin">外側の余白（mm）</label><input id="margin" type="number" min="0" max="20" step=".5" value="7"></div>
     <div class="field"><label for="gap">シール間隔（mm）</label><input id="gap" type="number" min="0" max="15" step=".5" value="3"></div>
@@ -152,7 +152,7 @@ textarea{resize:vertical;min-height:68px}
  <section class="panel right">
   <div class="editor-head"><div><h2>A4シールシート プレビュー</h2><div class="small">シールを追加すると、印刷範囲に自動で並びます。</div></div><div class="preview-tools screen-only"><button class="btn" id="resetBtn">初期サンプル</button></div></div>
   <div class="sheet-wrap"><div id="sheet" class="sheet"><div id="sheetInner" class="sheet-inner"></div><div class="print-guide screen-only"></div><div id="sheetEmpty" class="sheet-empty screen-only">まだシールがありません。<br>左の図鑑から画像を選び、ひとことを入れて「シールを追加」を押してね。</div></div></div>
-  <div class="sheet-caption"><span id="sheetInfo">A4 縦・35 mm</span><span id="capWarn" style="color:#b3543f;font-weight:700"></span><span>配置数 <b class="count" id="count">0</b> 枚</span></div>
+  <div class="sheet-caption"><span id="sheetInfo">A4 縦・25 mm</span><span id="capWarn" style="color:#b3543f;font-weight:700"></span><span>配置数 <b class="count" id="count">0</b> 枚</span></div>
   <p class="small">プレビューの点線は、多くのプリンターで端が欠けにくい範囲（内側5mm）の目安です。印刷には出ません。</p>
  </section>
 </main>
