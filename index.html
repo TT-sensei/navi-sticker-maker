@@ -122,7 +122,8 @@ function renderChars(){
 }
 function renderPhraseChips(){$('phraseList').innerHTML=phrases.map(p=>'<button class="chip" type="button">'+escapeHtml(p)+'</button>').join('');$('phraseList').querySelectorAll('button').forEach(b=>b.onclick=()=>$('phrase').value=b.textContent);}
 function getSize(){return $('size').value==='custom'?Math.max(15,Math.min(100,Number($('customSize').value)||35)):Number($('size').value)}
-function dims(){return $('orientation').value==='portrait'?{w:210,h:297}:{w:297,h:210}}\nfunction updatePrintPageRule(){let el=$('dynamicPrintPage');if(!el){el=document.createElement('style');el.id='dynamicPrintPage';document.head.appendChild(el)}const landscape=$('orientation').value==='landscape';el.textContent='@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:0}@media print{html,body{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}.sheet{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}}';}
+function dims(){return $('orientation').value==='portrait'?{w:210,h:297}:{w:297,h:210}}
+function updatePrintPageRule(){let el=$('dynamicPrintPage');if(!el){el=document.createElement('style');el.id='dynamicPrintPage';document.head.appendChild(el)}const landscape=$('orientation').value==='landscape';el.textContent='@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:0}@media print{html,body{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}.sheet{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}}';}
 function render(){
  const {w,h}=dims(),m=Math.max(0,Number($('margin').value)||0),g=Math.max(0,Number($('gap').value)||0),s=getSize(),shape=$('shape').value;
  const cols=Math.max(0,Math.floor((w-2*m+g)/(s+g))),rows=Math.max(0,Math.floor((h-2*m+g)/(s+g))),cap=cols*rows;
