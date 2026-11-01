@@ -176,13 +176,14 @@ function renderChars(){
  $('charList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();let i=+b.dataset.del;characters.splice(i,1);if(selectedChar===i)selectedChar=-1;else if(selectedChar>i)selectedChar--;renderChars();save(false)}));
 }
 const navianCharacters=[{id:'riku',label:'りく',job:'忍者'},{id:'sora',label:'そら',job:'剣士'},{id:'kai',label:'かい',job:'魔導士'},{id:'saku',label:'さく',job:'僧侶'},{id:'tsuki',label:'つき',job:'アーチャー'},{id:'nami',label:'なみ',job:'騎士'}];
+const navianExpressions=[{key:'smile',file:'01-normal-smile',label:'笑顔'},{key:'happy',file:'02-happy',label:'喜び'},{key:'encourage',file:'07-encouraging',label:'励まし'}];
 const navianCharacterBase='https://tt-sensei.github.io/navi-character-/assets/web/characters/';
 const navianBase='https://tt-sensei.github.io/navi-character-/assets/web/fantasy/';
 let navianFilter='all';
 function renderNavianLibrary(){
  const query=$('navianSearch').value.trim().toLowerCase();
  let items=[];
- if(navianFilter==='all'||navianFilter==='characters') items.push(...navianCharacters.map(c=>({kind:'character',id:c.id,name:c.id,label:c.label+'（'+c.job+'）',src:navianCharacterBase+c.id+'/fullbody/waving.webp'})));
+ if(navianFilter==='all'||navianFilter==='characters') items.push(...navianCharacters.flatMap(c=>navianExpressions.map(e=>({kind:'character',id:c.id+':'+e.key,name:c.id,label:c.label+'（'+e.label+'）',src:navianCharacterBase+c.id+'/expressions/'+e.file+'.webp'}))));
  if(navianFilter!=='characters'){
   const sets=navianFilter==='all'?navianSets:navianSets.filter(s=>s.id===navianFilter);
   items.push(...sets.flatMap(set=>set.names.map(name=>({kind:'monster',set,name,label:navianNames[name]||name.replace(/-/g,' '),src:navianBase+set.path+'/'+name+'.webp'}))));
@@ -228,12 +229,12 @@ $('fillBtn').onclick=()=>{if(!stickers.length){alert('先にシールを1枚追�
 $('clearBtn').onclick=()=>{if(confirm('シートのシールをすべて削除しますか？')){stickers=[];selectedSticker=-1;commit()}};
 function seedSamples(){
  const samples=[
-  {id:'navichar:riku',name:'りく（忍者）',src:navianCharacterBase+'riku/fullbody/waving.webp',source:'navian-character-site'},
-  {id:'navichar:saku',name:'さく（僧侶）',src:navianCharacterBase+'saku/fullbody/waving.webp',source:'navian-character-site'},
+  {id:'navichar:riku:happy',name:'りく（喜び）',src:navianCharacterBase+'riku/expressions/02-happy.webp',source:'navian-character-site'},
+  {id:'navichar:saku:encourage',name:'さく（励まし）',src:navianCharacterBase+'saku/expressions/07-encouraging.webp',source:'navian-character-site'},
   {id:'navian:zako:purun-little-magic-slime',name:'ぷるんスライム',src:navianBase+'monsters/zako/purun-little-magic-slime.webp',source:'navian-site'}];
  samples.forEach(c=>{if(!characters.some(x=>x.id===c.id))characters.push(c)});
  selectedChar=0;selectedSticker=0;
- stickers=[{id:'sample-1',charId:'navichar:riku',text:'ナイス！'},{id:'sample-2',charId:'navichar:saku',text:'よくできた！'},{id:'sample-3',charId:'navian:zako:purun-little-magic-slime',text:'がんばったね！'}];
+ stickers=[{id:'sample-1',charId:'navichar:riku:happy',text:'ナイス！'},{id:'sample-2',charId:'navichar:saku:encourage',text:'よくできた！'},{id:'sample-3',charId:'navian:zako:purun-little-magic-slime',text:'がんばったね！'}];
 }
 $('resetBtn').onclick=()=>{seedSamples();renderChars();commit()};
 $('orientation').onchange=()=>{updatePrintPageRule();commit()};$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';commit()};['customSize','margin','gap','shape','stickerBg'].forEach(id=>$(id).addEventListener('input',commit));
