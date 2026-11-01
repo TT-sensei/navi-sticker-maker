@@ -122,7 +122,7 @@ function renderChars(){
 }
 function renderPhraseChips(){$('phraseList').innerHTML=phrases.map(p=>'<button class="chip" type="button">'+escapeHtml(p)+'</button>').join('');$('phraseList').querySelectorAll('button').forEach(b=>b.onclick=()=>$('phrase').value=b.textContent);}
 function getSize(){return $('size').value==='custom'?Math.max(15,Math.min(100,Number($('customSize').value)||35)):Number($('size').value)}
-function dims(){return $('orientation').value==='portrait'?{w:210,h:297}:{w:297,h:210}}
+function dims(){return $('orientation').value==='portrait'?{w:210,h:297}:{w:297,h:210}}\nfunction updatePrintPageRule(){let el=$('dynamicPrintPage');if(!el){el=document.createElement('style');el.id='dynamicPrintPage';document.head.appendChild(el)}const landscape=$('orientation').value==='landscape';el.textContent='@page{size:A4 '+(landscape?'landscape':'portrait')+';margin:0}@media print{html,body{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}.sheet{width:'+(landscape?'297mm':'210mm')+'!important;height:'+(landscape?'210mm':'297mm')+'!important}}';}
 function render(){
  const {w,h}=dims(),m=Math.max(0,Number($('margin').value)||0),g=Math.max(0,Number($('gap').value)||0),s=getSize(),shape=$('shape').value;
  const cols=Math.max(0,Math.floor((w-2*m+g)/(s+g))),rows=Math.max(0,Math.floor((h-2*m+g)/(s+g))),cap=cols*rows;
@@ -146,10 +146,10 @@ $('addRepeatBtn').onclick=()=>{if(stickers.length){const last=stickers[stickers.
 $('fillBtn').onclick=()=>{if(!stickers.length){alert('先にシールを1枚追加してね。');return}const {w,h}=dims(),s=getSize(),m=Number($('margin').value)||0,g=Number($('gap').value)||0,cap=Math.floor((w-2*m+g)/(s+g))*Math.floor((h-2*m+g)/(s+g));const base=stickers[stickers.length-1];stickers=Array.from({length:cap},(_,i)=>({...base,id:String(Date.now()+i+Math.random())}));render()};
 $('clearBtn').onclick=()=>{if(confirm('シートのシールをすべて削除しますか？')){stickers=[];render()}};
 $('resetBtn').onclick=()=>{stickers=[];$('phrase').value='よく考えたね！';if(characters.length)addSticker($('phrase').value);else render()};
-$('orientation').onchange=render;$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';render()};['customSize','margin','gap','shape'].forEach(id=>$(id).addEventListener('input',render));
+$('orientation').onchange=()=>{updatePrintPageRule();render()};$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';render()};['customSize','margin','gap','shape'].forEach(id=>$(id).addEventListener('input',render));
 function save(show=true){try{localStorage.setItem('naviStickerMaker',JSON.stringify({characters,stickers,selectedChar,orientation:$('orientation').value,size:$('size').value,customSize:$('customSize').value,margin:$('margin').value,gap:$('gap').value,shape:$('shape').value}));if(show)alert('この端末に保存しました。')}catch(e){if(show)alert('保存できませんでした。画像の数やサイズを減らしてみてください。')}}
 function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d)return;characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k]});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
 $('saveBtn').onclick=()=>save(true);$('printBtn').onclick=()=>window.print();
-renderPhraseChips();load();
+renderPhraseChips();load();updatePrintPageRule();
 </script>
 </body></html>
