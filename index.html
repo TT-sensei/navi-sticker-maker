@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f7fb">
+<title>ナビアン先生シールメーカー</title>
+<style>
+:root{--ink:#203047;--muted:#68778b;--blue:#426b9a;--line:#dce4ee;--paper:#fff;--bg:#f3f6fa;--soft:#eaf1f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"UD Digi Kyokasho N-R","BIZ UDPGothic","Yu Gothic",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;border-radius:12px;background:#e7eff8;color:#315b88;display:grid;place-items:center;font-size:21px}
+.brand h1{font-size:18px;margin:0;font-weight:700}.brand p{font-size:11px;color:var(--muted);margin:3px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 13px;border-radius:9px;font-size:13px}
+.btn.primary{background:#315f91;color:white;border-color:#315f91}.btn:hover{filter:brightness(.97)}
+main{max-width:1500px;margin:0 auto;padding:18px;display:grid;grid-template-columns:340px minmax(420px,1fr);gap:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;min-width:0}
+.panel h2{font-size:14px;margin:0 0 13px}.section{padding-bottom:15px;margin-bottom:15px;border-bottom:1px solid #edf1f5}.section:last-child{border:0;margin:0;padding:0}
+.field{display:grid;gap:6px;margin:10px 0}.field label{font-size:12px;color:#506177;font-weight:600}
+input[type=text],input[type=number],select,textarea{width:100%;border:1px solid #cfd9e5;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);font-size:13px}
+textarea{resize:vertical;min-height:68px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.small{font-size:11px;color:var(--muted);line-height:1.6}
+.upload{display:block;border:1px dashed #aebed0;background:#f8fafc;border-radius:10px;padding:14px;text-align:center;color:#466486;font-size:12px}
+.upload input{display:none}
+.charlist{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.char{border:1px solid var(--line);border-radius:9px;padding:6px;background:#fff;position:relative;text-align:center;min-width:0}
+.char.active{border:2px solid #4e79aa;background:#f2f7fc;padding:5px}
+.char img{width:100%;height:68px;object-fit:contain}.char span{display:block;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.char button{position:absolute;right:3px;top:3px;border:0;border-radius:50%;background:#fff;color:#8b4b4b;width:20px;height:20px}
+.phrase-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid #d5dfeb;background:#f7f9fc;border-radius:20px;padding:6px 9px;font-size:11px;color:#3d5876}
+.chip:hover{background:#eaf1f8}
+.editor-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.editor-head h2{margin:0}.preview-tools{display:flex;gap:7px;flex-wrap:wrap}
+.sheet-wrap{background:#e8edf3;border-radius:12px;padding:18px;overflow:auto;display:flex;justify-content:center;align-items:flex-start;min-height:600px}
+.sheet{background:#fff;box-shadow:0 5px 24px #1d35551c;position:relative;flex:none;overflow:hidden}
+.sheet-inner{position:absolute;display:grid;align-content:start;justify-content:start}
+.sticker{position:relative;border:1px dashed #cbd4df;border-radius:14%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5%;overflow:hidden;background:#fff}
+.sticker img{width:76%;height:67%;object-fit:contain;min-height:0}
+.sticker .phrase{font-weight:700;line-height:1.15;overflow-wrap:anywhere;max-width:100%;color:#243c59}
+.sticker .mini-tag{position:absolute;bottom:3px;right:5px;font-size:7px;color:#9aa7b5}
+.empty{color:#7c8998;font-size:13px;text-align:center;padding:55px 20px;line-height:1.8}
+.sheet-caption{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:10px}
+.count{font-variant-numeric:tabular-nums;font-weight:700;color:#315f91}
+.notice{padding:10px 12px;border-radius:9px;background:#f1f6fb;color:#49637f;font-size:11px;line-height:1.6}
+@media(max-width:900px){main{grid-template-columns:1fr}.sheet-wrap{min-height:450px}.panel.left{order:2}.panel.right{order:1}}
+@media print{
+ @page{size:A4 portrait;margin:0}
+ html,body{width:210mm;height:297mm;margin:0!important;padding:0!important;background:#fff!important}
+ .top,main .left,.editor-head,.sheet-caption,.screen-only{display:none!important}
+ main{display:block;margin:0;padding:0;max-width:none}
+ .panel.right{border:0;padding:0;margin:0;border-radius:0}
+ .sheet-wrap{display:block;padding:0;margin:0;background:#fff;overflow:visible;min-height:0}
+ .sheet{width:210mm!important;height:297mm!important;box-shadow:none!important;overflow:hidden}
+ .sheet-inner{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .sticker{border:0!important;overflow:visible}
+ .sticker::after{content:"";position:absolute;inset:0;border:0.25mm solid #e2e6eb;border-radius:14%;pointer-events:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="brand"><div class="mark">✦</div><div><h1>ナビアン先生シールメーカー</h1><p>先生からのひとことを、A4全面シールに。</p></div></div>
+ <div class="actions"><button class="btn" id="saveBtn">データを保存</button><button class="btn primary" id="printBtn">印刷する ／ PDF保存</button></div>
+</header>
+<main>
+ <aside class="panel left">
+  <div class="section">
+   <h2>1. ナビアン画像を追加</h2>
+   <label class="upload">＋ 画像を選ぶ（複数選択OK）<input id="imageInput" type="file" accept="image/*" multiple></label>
+   <p class="small">手元のナビアン画像を読み込めます。背景透過PNGがおすすめ。画像はこの端末のブラウザ内に保存できます。</p>
+   <div id="charList" class="charlist"></div>
+  </div>
+  <div class="section">
+   <h2>2. 先生からのひとこと</h2>
+   <div class="field"><label for="phrase">コメント</label><textarea id="phrase" maxlength="46" placeholder="例：よく考えたね！"></textarea></div>
+   <div class="phrase-list" id="phraseList"></div>
+   <div class="row" style="margin-top:10px"><button class="btn primary" id="addBtn">シールを追加</button><button class="btn" id="addRepeatBtn">同じシールを追加</button></div>
+   <p class="small">画像を選び、コメントを入力して追加。ひとことは後から編集できます。</p>
+  </div>
+  <div class="section">
+   <h2>3. シール用紙の設定</h2>
+   <div class="row">
+    <div class="field"><label for="orientation">用紙</label><select id="orientation"><option value="portrait">A4 縦</option><option value="landscape">A4 横</option></select></div>
+    <div class="field"><label for="size">シール幅・高さ</label><select id="size"><option value="30">30 mm</option><option value="35" selected>35 mm</option><option value="40">40 mm</option><option value="45">45 mm</option><option value="50">50 mm</option><option value="55">55 mm</option><option value="60">60 mm</option><option value="custom">自由入力</option></select></div>
+   </div>
+   <div class="row" id="customRow" hidden><div class="field"><label for="customSize">サイズ（mm）</label><input id="customSize" type="number" min="15" max="100" value="35"></div></div>
+   <div class="row">
+    <div class="field"><label for="margin">外側の余白（mm）</label><input id="margin" type="number" min="0" max="20" step=".5" value="7"></div>
+    <div class="field"><label for="gap">シール間隔（mm）</label><input id="gap" type="number" min="0" max="15" step=".5" value="3"></div>
+   </div>
+   <div class="field"><label for="shape">シールの形</label><select id="shape"><option value="round">角丸</option><option value="circle">丸</option><option value="square">四角</option></select></div>
+   <div class="notice">全面シール用紙向けの自由配置です。印刷時は「A4・倍率100%（実際のサイズ）」を選び、プリンターのフチなし設定や自動拡大縮小は用紙に合わせて確認してください。</div>
+  </div>
+  <div class="section">
+   <h2>4. シートの編集</h2>
+   <div class="row"><button class="btn" id="fillBtn">シートを同じシールで埋める</button><button class="btn" id="clearBtn">シートを空にする</button></div>
+   <p class="small">シートを埋めると、現在選んでいるシールが印刷可能な範囲に並びます。</p>
+  </div>
+ </aside>
+ <section class="panel right">
+  <div class="editor-head"><div><h2>A4シールシート プレビュー</h2><div class="small">シールを追加すると、印刷範囲に自動で並びます。</div></div><div class="preview-tools screen-only"><button class="btn" id="resetBtn">初期サンプル</button></div></div>
+  <div class="sheet-wrap"><div id="sheet" class="sheet"><div id="sheetInner" class="sheet-inner"></div></div></div>
+  <div class="sheet-caption"><span id="sheetInfo">A4 縦・35 mm</span><span>配置数 <b class="count" id="count">0</b> 枚</span></div>
+ </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const phrases=["よく考えたね！","ていねいに書けたね！","すばらしい発見！","その調子！","最後までよくがんばったね！","自分の考えが伝わるよ！","前より成長したね！","ナイスチャレンジ！","いいところに気づいたね！","自分でできたね！","あと一歩！期待してるよ！","読みやすくまとめたね！","学びが深まったね！","友達の考えも生かせたね！","工夫が光っているね！"];
+let characters=[],selectedChar=-1,stickers=[],selectedSticker=-1;
+const sampleSvg=(label,color)=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><circle cx="90" cy="88" r="72" fill="'+color+'" opacity=".18"/><circle cx="90" cy="78" r="48" fill="'+color+'"/><circle cx="73" cy="72" r="6" fill="#24364a"/><circle cx="107" cy="72" r="6" fill="#24364a"/><path d="M72 94 Q90 112 108 94" fill="none" stroke="#24364a" stroke-width="5" stroke-linecap="round"/><text x="90" y="158" text-anchor="middle" font-size="18" fill="#24364a">'+label+'</text></svg>');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderChars(){
+ $('charList').innerHTML=characters.map((c,i)=>'<div class="char '+(i===selectedChar?'active':'')+'" data-i="'+i+'"><button title="削除" data-del="'+i+'">×</button><img src="'+c.src+'" alt=""><span>'+escapeHtml(c.name)+'</span></div>').join('');
+ $('charList').querySelectorAll('.char').forEach(el=>el.addEventListener('click',e=>{if(e.target.dataset.del!==undefined)return;selectedChar=+el.dataset.i;renderChars()}));
+ $('charList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();let i=+b.dataset.del;characters.splice(i,1);if(selectedChar===i)selectedChar=-1;else if(selectedChar>i)selectedChar--;renderChars()}));
+}
+function renderPhraseChips(){$('phraseList').innerHTML=phrases.map(p=>'<button class="chip" type="button">'+escapeHtml(p)+'</button>').join('');$('phraseList').querySelectorAll('button').forEach(b=>b.onclick=()=>$('phrase').value=b.textContent);}
+function getSize(){return $('size').value==='custom'?Math.max(15,Math.min(100,Number($('customSize').value)||35)):Number($('size').value)}
+function dims(){return $('orientation').value==='portrait'?{w:210,h:297}:{w:297,h:210}}
+function render(){
+ const {w,h}=dims(),m=Math.max(0,Number($('margin').value)||0),g=Math.max(0,Number($('gap').value)||0),s=getSize(),shape=$('shape').value;
+ const cols=Math.max(0,Math.floor((w-2*m+g)/(s+g))),rows=Math.max(0,Math.floor((h-2*m+g)/(s+g))),cap=cols*rows;
+ const sheet=$('sheet'),inner=$('sheetInner');
+ sheet.style.width=w+'mm';sheet.style.height=h+'mm';
+ inner.style.left=m+'mm';inner.style.top=m+'mm';inner.style.width=(w-2*m)+'mm';inner.style.height=(h-2*m)+'mm';
+ inner.style.gridTemplateColumns='repeat('+cols+','+s+'mm)';inner.style.gridAutoRows=s+'mm';inner.style.gap=g+'mm';
+ inner.innerHTML=stickers.slice(0,cap).map((st,i)=>{
+ const ch=characters.find(c=>c.id===st.charId),radius=shape==='circle'?'50%':shape==='square'?'3%':'14%';
+ const font=Math.max(8,Math.min(15,s*0.31));
+ return '<div class="sticker" data-sticker="'+i+'" style="border-radius:'+radius+'"><img src="'+(ch?ch.src:'')+'" style="'+(ch?'':'display:none')+'" alt=""><div class="phrase" contenteditable="true" spellcheck="false" data-edit="'+i+'" style="font-size:'+font+'px">'+escapeHtml(st.text)+'</div></div>';
+ }).join('');
+ inner.querySelectorAll('[data-edit]').forEach(el=>{el.addEventListener('blur',()=>{stickers[+el.dataset.edit].text=el.textContent.trim();});el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur()}})});
+ $('sheetInfo').textContent='A4 '+($('orientation').value==='portrait'?'縦':'横')+'・'+s+' mm ／ '+cols+'列 × '+rows+'行（最大'+cap+'枚）';
+ $('count').textContent=Math.min(stickers.length,cap)+' / '+cap;
+}
+function addSticker(text){if(selectedChar<0||!characters[selectedChar]){alert('先にナビアン画像を選んでね。');return}if(!text.trim()){alert('ひとことを入力してね。');return}stickers.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),charId:characters[selectedChar].id,text:text.trim()});selectedSticker=stickers.length-1;render()}
+$('imageInput').addEventListener('change',async e=>{const files=[...e.target.files];for(const f of files){if(!f.type.startsWith('image/'))continue;const src=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});characters.push({id:String(Date.now()+Math.random()),name:f.name.replace(/\.[^.]+$/,''),src});}if(characters.length)selectedChar=characters.length-1;renderChars();save(false);e.target.value=''});
+$('addBtn').onclick=()=>addSticker($('phrase').value);
+$('addRepeatBtn').onclick=()=>{if(stickers.length){const last=stickers[stickers.length-1];stickers.push({...last,id:String(Date.now()+Math.random())});render()}else addSticker($('phrase').value)};
+$('fillBtn').onclick=()=>{if(!stickers.length){alert('先にシールを1枚追加してね。');return}const {w,h}=dims(),s=getSize(),m=Number($('margin').value)||0,g=Number($('gap').value)||0,cap=Math.floor((w-2*m+g)/(s+g))*Math.floor((h-2*m+g)/(s+g));const base=stickers[stickers.length-1];stickers=Array.from({length:cap},(_,i)=>({...base,id:String(Date.now()+i+Math.random())}));render()};
+$('clearBtn').onclick=()=>{if(confirm('シートのシールをすべて削除しますか？')){stickers=[];render()}};
+$('resetBtn').onclick=()=>{stickers=[];$('phrase').value='よく考えたね！';if(characters.length)addSticker($('phrase').value);else render()};
+$('orientation').onchange=render;$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';render()};['customSize','margin','gap','shape'].forEach(id=>$(id).addEventListener('input',render));
+function save(show=true){try{localStorage.setItem('naviStickerMaker',JSON.stringify({characters,stickers,selectedChar,orientation:$('orientation').value,size:$('size').value,customSize:$('customSize').value,margin:$('margin').value,gap:$('gap').value,shape:$('shape').value}));if(show)alert('この端末に保存しました。')}catch(e){if(show)alert('保存できませんでした。画像の数やサイズを減らしてみてください。')}}
+function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d)return;characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k]});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
+$('saveBtn').onclick=()=>save(true);$('printBtn').onclick=()=>window.print();
+renderPhraseChips();load();
+</script>
+</body></html>
