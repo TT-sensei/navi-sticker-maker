@@ -83,6 +83,7 @@ textarea{resize:vertical;min-height:68px}
     <div class="navian-head"><strong>ナビキャラ公開素材</strong><span id="navianCount">読み込み準備中</span></div>
     <div class="navian-filters" id="navianFilters">
      <button class="navian-filter active" data-set="all" type="button">すべて</button>
+     <button class="navian-filter" data-set="characters" type="button">ナビキャラ</button>
      <button class="navian-filter" data-set="zako" type="button">ナビアン</button>
      <button class="navian-filter" data-set="zakoEvolved" type="button">エボナビ</button>
      <button class="navian-filter" data-set="boss" type="button">ボスナビ</button>
@@ -151,15 +152,22 @@ function renderChars(){
  $('charList').querySelectorAll('.char').forEach(el=>el.addEventListener('click',e=>{if(e.target.dataset.del!==undefined)return;selectedChar=+el.dataset.i;renderChars()}));
  $('charList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();let i=+b.dataset.del;characters.splice(i,1);if(selectedChar===i)selectedChar=-1;else if(selectedChar>i)selectedChar--;renderChars()}));
 }
+const navianCharacters=[{id:'riku',label:'りく',job:'忍者'},{id:'sora',label:'そら',job:'剣士'},{id:'kai',label:'かい',job:'魔導士'},{id:'saku',label:'さく',job:'僧侶'},{id:'tsuki',label:'つき',job:'アーチャー'},{id:'nami',label:'なみ',job:'騎士'}];
+const navianCharacterBase='https://tt-sensei.github.io/navi-character-/assets/web/characters/';
 const navianBase='https://tt-sensei.github.io/navi-character-/assets/web/fantasy/';
 let navianFilter='all';
 function renderNavianLibrary(){
  const query=$('navianSearch').value.trim().toLowerCase();
- const sets=navianFilter==='all'?navianSets:navianSets.filter(s=>s.id===navianFilter);
- const items=sets.flatMap(set=>set.names.map(name=>({set,name,label:navianNames[name]||name.replace(/-/g,' ')}))).filter(item=>!query||item.label.toLowerCase().includes(query)||item.name.toLowerCase().includes(query));
- $('navianCount').textContent=items.length+'体';
- $('navianGrid').innerHTML=items.map(item=>{const id='navian:'+item.set.id+':'+item.name;const src=navianBase+item.set.path+'/'+item.name+'.webp';const active=characters.some((c,i)=>c.id===id&&i===selectedChar);return '<button class="navian-card '+(active?'active':'')+'" type="button" data-navian-id="'+id+'" data-navian-name="'+escapeHtml(item.label)+'" data-navian-src="'+src+'"><img loading="lazy" src="'+src+'" alt="'+escapeHtml(item.label)+'"><span>'+escapeHtml(item.label)+'</span></button>';}).join('')||'<div class="navian-empty">見つかりませんでした。別の言葉で検索してね。</div>';
- $('navianGrid').querySelectorAll('[data-navian-id]').forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.navianId;let i=characters.findIndex(c=>c.id===id);if(i<0){characters.push({id,name:btn.dataset.navianName,src:btn.dataset.navianSrc,source:'navian-site'});i=characters.length-1;}selectedChar=i;renderChars();renderNavianLibrary();}));
+ let items=[];
+ if(navianFilter==='all'||navianFilter==='characters') items.push(...navianCharacters.map(c=>({kind:'character',id:c.id,name:c.id,label:c.label+'（'+c.job+'）',src:navianCharacterBase+c.id+'/fullbody/waving.webp'})));
+ if(navianFilter!=='characters'){
+  const sets=navianFilter==='all'?navianSets:navianSets.filter(s=>s.id===navianFilter);
+  items.push(...sets.flatMap(set=>set.names.map(name=>({kind:'monster',set,name,label:navianNames[name]||name.replace(/-/g,' '),src:navianBase+set.path+'/'+name+'.webp'}))));
+ }
+ items=items.filter(item=>!query||item.label.toLowerCase().includes(query)||item.name.toLowerCase().includes(query));
+ $('navianCount').textContent=items.length+'件';
+ $('navianGrid').innerHTML=items.map(item=>{const id=item.kind==='character'?'navichar:'+item.id:'navian:'+item.set.id+':'+item.name;const active=characters.some((c,i)=>c.id===id&&i===selectedChar);return '<button class="navian-card '+(active?'active':'')+'" type="button" data-navian-id="'+id+'" data-navian-name="'+escapeHtml(item.label)+'" data-navian-src="'+item.src+'"><img loading="lazy" src="'+item.src+'" alt="'+escapeHtml(item.label)+'"><span>'+escapeHtml(item.label)+'</span></button>';}).join('')||'<div class="navian-empty">見つかりませんでした。別の言葉で検索してね。</div>';
+ $('navianGrid').querySelectorAll('[data-navian-id]').forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.navianId;let i=characters.findIndex(c=>c.id===id);if(i<0){characters.push({id,name:btn.dataset.navianName,src:btn.dataset.navianSrc,source:id.startsWith('navichar:')?'navian-character-site':'navian-site'});i=characters.length-1;}selectedChar=i;renderChars();renderNavianLibrary();}));
  document.querySelectorAll('[data-set]').forEach(btn=>btn.classList.toggle('active',btn.dataset.set===navianFilter));
 }
 $('navianFilters').addEventListener('click',e=>{const btn=e.target.closest('[data-set]');if(!btn)return;navianFilter=btn.dataset.set;renderNavianLibrary();});
