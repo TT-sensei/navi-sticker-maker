@@ -64,6 +64,7 @@ textarea{resize:vertical;min-height:68px}
  .sheet-inner{print-color-adjust:exact;-webkit-print-color-adjust:exact}
  .sticker{border:0!important;overflow:visible}
  .sticker::after{content:"";position:absolute;inset:0;border:0.25mm solid #e2e6eb;border-radius:14%;pointer-events:none}
+ .sticker.blank::after{border:0}
 }
 
 .navian-library{border:1px solid #dce5ef;background:#f8fafc;border-radius:10px;padding:10px;margin:10px 0}
@@ -85,6 +86,8 @@ textarea{resize:vertical;min-height:68px}
 .sticker img{position:absolute;z-index:1;left:-5%;top:-7%;width:110%;height:87%;object-fit:contain;max-width:none}
 .sticker .phrase{position:absolute;z-index:2;left:2%;right:2%;bottom:3%;max-width:96%;padding:2px 4px;border-radius:7px;background:rgba(255,255,255,.84);box-shadow:0 1px 4px rgba(30,45,65,.08);color:#243c59}
 .sticker[data-bg="galaxy"] .phrase{color:#26324b}
+.sticker.blank{background:transparent!important}
+.sticker.blank::before{background:transparent;box-shadow:none}
 
 </style>
 </head>
@@ -148,8 +151,9 @@ textarea{resize:vertical;min-height:68px}
   <div class="section">
    <h2>4. シートの編集</h2>
    <div class="row"><button class="btn" id="fillBtn">シートを同じシールで埋める</button><button class="btn" id="clearBtn">シートを空にする</button></div>
+   <div class="row" style="margin-top:8px"><button class="btn" id="copyRowBtn">横一列コピー</button><button class="btn" id="copyColBtn">縦一列コピー</button></div>
    <div class="row" style="margin-top:8px"><button class="btn" id="delStickerBtn">選んだシールを削除</button><button class="btn" id="movePrevBtn">← 前へ動かす</button><button class="btn" id="moveNextBtn">次へ動かす →</button></div>
-   <p class="small">シートのシールをタップすると選べます（青い枠が目印）。選んだシールは削除や並べ替えができます。</p>
+   <p class="small">シートのシールをタップすると選べます（青い枠が目印）。選んだシールは削除や並べ替えのほか、横一列・縦一列へのコピーもできます。</p>
    <p class="small">シートを埋めると、現在選んでいるシールが印刷可能な範囲に並びます。</p>
   </div>
  </aside>
@@ -216,13 +220,15 @@ function render(){
  inner.innerHTML=stickers.slice(0,cap).map((st,i)=>{
  const ch=characters.find(c=>c.id===st.charId),radius=shape==='circle'?'50%':shape==='square'?'3%':'14%';
  const len=st.text.length,shrink=len<=6?1:len<=12?0.85:len<=20?0.7:len<=30?0.58:0.48,font=Math.max(7,Math.min(15,s*0.31*shrink));
+ if(st.blank)return '<div class="sticker blank'+(i===selectedSticker?' selected':'')+'" data-sticker="'+i+'" data-bg="none" style="border-radius:'+radius+'"></div>';
  return '<div class="sticker'+(i===selectedSticker?' selected':'')+'" data-sticker="'+i+'" data-bg="'+($('stickerBg').value||'none')+'" style="border-radius:'+radius+'"><img src="'+(ch?ch.src:'')+'" style="'+(ch?'':'display:none')+'" alt=""><div class="phrase" contenteditable="true" spellcheck="false" data-edit="'+i+'" style="font-size:'+font+'px">'+escapeHtml(st.text)+'</div></div>';
  }).join('');
  inner.querySelectorAll('[data-sticker]').forEach(el=>{el.addEventListener('click',e=>{if(e.target.dataset.edit!==undefined)return;selectedSticker=+el.dataset.sticker;render()})});
  inner.querySelectorAll('[data-edit]').forEach(el=>{el.addEventListener('blur',()=>{stickers[+el.dataset.edit].text=el.textContent.trim();save(false)});el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur()}})});
  $('sheetInfo').textContent='A4 '+($('orientation').value==='portrait'?'縦':'横')+'・'+s+' mm ／ '+cols+'列 × '+rows+'行（最大'+cap+'枚）';
- $('count').textContent=Math.min(stickers.length,cap)+' / '+cap;
- $('capWarn').textContent=stickers.length>cap?('入りきらない '+(stickers.length-cap)+' 枚は印刷されません'):'';
+ $('count').textContent=stickers.slice(0,cap).filter(x=>!x.blank).length+' / '+cap;
+ const over=stickers.slice(cap).filter(x=>!x.blank).length;
+ $('capWarn').textContent=over?('入りきらない '+over+' 枚は印刷されません'):'';
  const se=$('sheetEmpty');if(se)se.style.display=stickers.length?'none':'flex';
  fitPreview();
 }
@@ -241,8 +247,14 @@ function commit(){render();save(false)}
 function addSticker(text){if(selectedChar<0||!characters[selectedChar]){alert('先にナビアン画像を選んでね。');return}if(!text.trim()){alert('ひとことを入力してね。');return}stickers.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),charId:characters[selectedChar].id,text:text.trim()});selectedSticker=stickers.length-1;commit()}
 $('imageInput').addEventListener('change',async e=>{const files=[...e.target.files];for(const f of files){if(!f.type.startsWith('image/'))continue;const src=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});characters.push({id:String(Date.now()+Math.random()),name:f.name.replace(/\.[^.]+$/,''),src});}if(characters.length)selectedChar=characters.length-1;renderChars();save(false);e.target.value=''});
 $('addBtn').onclick=()=>addSticker($('phrase').value);
-$('addRepeatBtn').onclick=()=>{if(stickers.length){const last=stickers[stickers.length-1];stickers.push({...last,id:String(Date.now()+Math.random())});selectedSticker=stickers.length-1;commit()}else addSticker($('phrase').value)};
-$('fillBtn').onclick=()=>{if(!stickers.length){alert('先にシールを1枚追加してね。');return}const {w,h}=dims(),s=getSize(),m=Number($('margin').value)||0,g=Number($('gap').value)||0,cap=Math.floor((w-2*m+g)/(s+g))*Math.floor((h-2*m+g)/(s+g));const base=stickers[stickers.length-1];stickers=Array.from({length:cap},(_,i)=>({...base,id:String(Date.now()+i+Math.random())}));selectedSticker=0;commit()};
+$('addRepeatBtn').onclick=()=>{const li=sourceIndex();if(li>=0){const last=stickers[li];stickers.push({...last,id:String(Date.now()+Math.random())});selectedSticker=stickers.length-1;commit()}else addSticker($('phrase').value)};
+$('fillBtn').onclick=()=>{if(!stickers.length){alert('先にシールを1枚追加してね。');return}const {w,h}=dims(),s=getSize(),m=Number($('margin').value)||0,g=Number($('gap').value)||0,cap=Math.floor((w-2*m+g)/(s+g))*Math.floor((h-2*m+g)/(s+g));const base=stickers[sourceIndex()]||stickers[stickers.length-1];stickers=Array.from({length:cap},(_,i)=>({...base,id:String(Date.now()+i+Math.random())}));selectedSticker=0;commit()};
+function gridMetrics(){const {w,h}=dims(),s=getSize(),m=Number($('margin').value)||0,g=Number($('gap').value)||0,cols=Math.max(0,Math.floor((w-2*m+g)/(s+g))),rows=Math.max(0,Math.floor((h-2*m+g)/(s+g)));return{cols,rows,cap:cols*rows}}
+function sourceIndex(){if(selectedSticker>=0&&stickers[selectedSticker]&&!stickers[selectedSticker].blank)return selectedSticker;for(let i=stickers.length-1;i>=0;i--)if(!stickers[i].blank)return i;return -1}
+function copyRow(){const s=sourceIndex();if(s<0){alert('先にコピーしたいシールを選んでね。');return}const{cols,cap}=gridMetrics();if(!cols)return;const src=stickers[s],rowStart=Math.floor(s/cols)*cols,rowEnd=Math.min(rowStart+cols-1,cap-1);for(let i=rowStart;i<=rowEnd;i++){if(i===s)continue;const c={...src,id:String(Date.now()+i+Math.random())};if(i<stickers.length)stickers[i]=c;else stickers.push(c)}selectedSticker=s;commit()}
+function copyCol(){const s=sourceIndex();if(s<0){alert('先にコピーしたいシールを選んでね。');return}const{cols,rows}=gridMetrics();if(!cols||!rows)return;const src=stickers[s],col=s%cols,last=col+(rows-1)*cols,next=stickers.slice();for(let i=0;i<=last;i++){if(i%cols===col){if(i!==s)next[i]={...src,id:String(Date.now()+i+Math.random())}}else if(next[i]===undefined)next[i]={id:'blank-'+Date.now()+'-'+i,charId:'',text:'',blank:true}}stickers=next;selectedSticker=s;commit()}
+$('copyRowBtn').onclick=copyRow;
+$('copyColBtn').onclick=copyCol;
 $('clearBtn').onclick=()=>{if(confirm('シートのシールをすべて削除しますか？')){stickers=[];selectedSticker=-1;commit()}};
 function seedSamples(){
  const samples=[
