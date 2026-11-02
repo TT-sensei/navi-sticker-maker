@@ -88,6 +88,10 @@ textarea{resize:vertical;min-height:68px}
 .sticker[data-bg="galaxy"] .phrase{color:#26324b}
 .sticker.blank{background:transparent!important}
 .sticker.blank::before{background:transparent;box-shadow:none}
+.sticker-pattern{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;background-repeat:repeat;background-size:8mm 8mm}
+.sticker-pattern[data-pat="star"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 2.8l1.1 2.9 2.9 1.3-2.9 1.3L7 11.2 5.9 8.3 3 7l2.9-1.3z' fill='%23ffdf6b' fill-opacity='.6'/%3E%3Cpath d='M17 12.6l.8 2 2 1-2 .9-.8 2.1-.8-2.1-2-.9 2-1z' fill='%23ffdf6b' fill-opacity='.45'/%3E%3Ccircle cx='18' cy='5' r='1' fill='%23ffdf6b' fill-opacity='.5'/%3E%3C/svg%3E")}
+.sticker-pattern[data-pat="heart"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10.5C4 8 3.2 6.6 3.2 5.2 3.2 3.9 4.2 3 5.4 3c.8 0 1.4.4 1.6 1 .2-.6.8-1 1.6-1 1.2 0 2.2.9 2.2 2.2 0 1.4-.8 2.8-3.8 5.3z' fill='%23ff9fb8' fill-opacity='.55'/%3E%3Cpath d='M7 10.5C4 8 3.2 6.6 3.2 5.2 3.2 3.9 4.2 3 5.4 3c.8 0 1.4.4 1.6 1 .2-.6.8-1 1.6-1 1.2 0 2.2.9 2.2 2.2 0 1.4-.8 2.8-3.8 5.3z' fill='%23ff9fb8' fill-opacity='.4' transform='translate(12.8 12.8) scale(.52)'/%3E%3C/svg%3E")}
+.sticker-pattern[data-pat="dot"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='6' cy='6' r='1.7' fill='%23a8c8ec' fill-opacity='.5'/%3E%3Ccircle cx='17' cy='14' r='1.7' fill='%23a8c8ec' fill-opacity='.5'/%3E%3Ccircle cx='17' cy='5' r='1.1' fill='%23a8c8ec' fill-opacity='.45'/%3E%3Ccircle cx='6' cy='17' r='1.1' fill='%23a8c8ec' fill-opacity='.45'/%3E%3C/svg%3E")}
 
 </style>
 </head>
@@ -145,6 +149,7 @@ textarea{resize:vertical;min-height:68px}
    </div>
    <div class="field"><label for="shape">シールの形</label><select id="shape"><option value="round">角丸</option><option value="circle">丸</option><option value="square">四角</option></select></div>
    <div class="field"><label for="stickerBg">シールの背景</label><select id="stickerBg"><option value="holo" selected>ホログラム（おすすめ・初期設定）</option><option value="none">なし・ホワイト</option><option value="aurora">オーロラ</option><option value="pearl">パール</option><option value="galaxy">ギャラクシー</option><option value="pastel">パステルグラデーション</option></select></div>
+   <div class="field"><label for="stickerPattern">模様（背景の上に重ねる）</label><select id="stickerPattern"><option value="none" selected>なし</option><option value="star">星・きらきら</option><option value="heart">ハート</option><option value="dot">ドット</option></select></div>
    <p class="small">背景は印刷にも反映されます。絵は少し大きく、シールのふちからはみ出す配置にしています。</p>
    <div class="notice">全面シール用紙向けの自由配置です。印刷時は「A4・倍率100%（実際のサイズ）」を選び、プリンターのフチなし設定や自動拡大縮小は用紙に合わせて確認してください。</div>
   </div>
@@ -221,7 +226,8 @@ function render(){
  const ch=characters.find(c=>c.id===st.charId),radius=shape==='circle'?'50%':shape==='square'?'3%':'14%';
  const len=st.text.length,shrink=len<=6?1:len<=12?0.85:len<=20?0.7:len<=30?0.58:0.48,font=Math.max(7,Math.min(15,s*0.31*shrink));
  if(st.blank)return '<div class="sticker blank'+(i===selectedSticker?' selected':'')+'" data-sticker="'+i+'" data-bg="none" style="border-radius:'+radius+'"></div>';
- return '<div class="sticker'+(i===selectedSticker?' selected':'')+'" data-sticker="'+i+'" data-bg="'+($('stickerBg').value||'none')+'" style="border-radius:'+radius+'"><img src="'+(ch?ch.src:'')+'" style="'+(ch?'':'display:none')+'" alt=""><div class="phrase" contenteditable="true" spellcheck="false" data-edit="'+i+'" style="font-size:'+font+'px">'+escapeHtml(st.text)+'</div></div>';
+ const pat=$('stickerPattern').value||'none',patHtml=pat!=='none'?'<span class="sticker-pattern" data-pat="'+pat+'"></span>':'';
+ return '<div class="sticker'+(i===selectedSticker?' selected':'')+'" data-sticker="'+i+'" data-bg="'+($('stickerBg').value||'none')+'" style="border-radius:'+radius+'">'+patHtml+'<img src="'+(ch?ch.src:'')+'" style="'+(ch?'':'display:none')+'" alt=""><div class="phrase" contenteditable="true" spellcheck="false" data-edit="'+i+'" style="font-size:'+font+'px">'+escapeHtml(st.text)+'</div></div>';
  }).join('');
  inner.querySelectorAll('[data-sticker]').forEach(el=>{el.addEventListener('click',e=>{if(e.target.dataset.edit!==undefined)return;selectedSticker=+el.dataset.sticker;render()})});
  inner.querySelectorAll('[data-edit]').forEach(el=>{el.addEventListener('blur',()=>{stickers[+el.dataset.edit].text=el.textContent.trim();save(false)});el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur()}})});
@@ -266,9 +272,9 @@ function seedSamples(){
  stickers=[{id:'sample-1',charId:'navichar:riku:happy',text:'ナイス！'},{id:'sample-2',charId:'navichar:saku:encourage',text:'よくできた！'},{id:'sample-3',charId:'navian:zako:purun-little-magic-slime',text:'がんばったね！'}];
 }
 $('resetBtn').onclick=()=>{seedSamples();renderChars();commit()};
-$('orientation').onchange=()=>{updatePrintPageRule();commit()};$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';commit()};['customSize','margin','gap','shape','stickerBg'].forEach(id=>$(id).addEventListener('input',commit));
-function save(show=true){try{localStorage.setItem('naviStickerMaker',JSON.stringify({characters,stickers,selectedChar,orientation:$('orientation').value,size:$('size').value,customSize:$('customSize').value,margin:$('margin').value,gap:$('gap').value,shape:$('shape').value,stickerBg:$('stickerBg').value}));if(show)alert('この端末に保存しました。')}catch(e){if(show)alert('保存できませんでした。画像の数やサイズを減らしてみてください。')}}
-function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d){seedSamples();renderChars();commit();return}characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape','stickerBg'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k];else if(k==='stickerBg')$('stickerBg').value='holo'});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
+$('orientation').onchange=()=>{updatePrintPageRule();commit()};$('size').onchange=()=>{$('customRow').hidden=$('size').value!=='custom';commit()};['customSize','margin','gap','shape','stickerBg','stickerPattern'].forEach(id=>$(id).addEventListener('input',commit));
+function save(show=true){try{localStorage.setItem('naviStickerMaker',JSON.stringify({characters,stickers,selectedChar,orientation:$('orientation').value,size:$('size').value,customSize:$('customSize').value,margin:$('margin').value,gap:$('gap').value,shape:$('shape').value,stickerBg:$('stickerBg').value,stickerPattern:$('stickerPattern').value}));if(show)alert('この端末に保存しました。')}catch(e){if(show)alert('保存できませんでした。画像の数やサイズを減らしてみてください。')}}
+function load(){try{const d=JSON.parse(localStorage.getItem('naviStickerMaker')||'null');if(!d){seedSamples();renderChars();commit();return}characters=d.characters||[];stickers=d.stickers||[];selectedChar=d.selectedChar??-1;['orientation','size','customSize','margin','gap','shape','stickerBg','stickerPattern'].forEach(k=>{if(d[k]!==undefined)$(k).value=d[k];else if(k==='stickerBg')$('stickerBg').value='holo'});$('customRow').hidden=$('size').value!=='custom';renderChars();render()}catch(e){}}
 $('delStickerBtn').onclick=()=>{if(selectedSticker<0||!stickers[selectedSticker]){alert('先にシートのシールをタップして選んでね。');return}stickers.splice(selectedSticker,1);if(selectedSticker>=stickers.length)selectedSticker=stickers.length-1;commit()};
 $('movePrevBtn').onclick=()=>{if(selectedSticker>0){const t=stickers[selectedSticker-1];stickers[selectedSticker-1]=stickers[selectedSticker];stickers[selectedSticker]=t;selectedSticker--;commit()}};
 $('moveNextBtn').onclick=()=>{if(selectedSticker>=0&&selectedSticker<stickers.length-1){const t=stickers[selectedSticker+1];stickers[selectedSticker+1]=stickers[selectedSticker];stickers[selectedSticker]=t;selectedSticker++;commit()}};
